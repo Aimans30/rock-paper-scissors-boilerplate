@@ -14,7 +14,7 @@ let gameButtons = document.querySelectorAll(".options button");
 let playButton = document.getElementById("play-button");
 
 // Array of images
-imageArray = [
+const imageArray = [
   "./assets/paper-hand.png",
   "./assets/rock-hand.png",
   "./assets/scissors-hand.png",
@@ -26,55 +26,85 @@ function mainfunc(yourChoice) {
   let compChoice = Math.floor(Math.random() * 3);
   compImage.src = imageArray[compChoice];
 
-  // Check who won in each round
+  // Highlight winner
+  resetHighlights();
+  highlightWinner(yourChoice, compChoice);
+
+  // Determine winner
   switch (compChoice) {
-    case 0:
+    case 0: // Computer: Paper
       if (yourChoice === 0) {
+        setMessage("It's a Draw!");
       } else if (yourChoice === 1) {
         compScoreValue++;
+        setMessage("Computer Wins!");
       } else {
         yourScoreValue++;
+        setMessage("You Win!");
       }
       break;
 
-    case 1:
+    case 1: // Computer: Rock
       if (yourChoice === 0) {
         yourScoreValue++;
+        setMessage("You Win!");
       } else if (yourChoice === 1) {
+        setMessage("It's a Draw!");
       } else {
         compScoreValue++;
+        setMessage("Computer Wins!");
       }
       break;
 
-    case 2:
+    case 2: // Computer: Scissors
       if (yourChoice === 0) {
         compScoreValue++;
+        setMessage("Computer Wins!");
       } else if (yourChoice === 1) {
         yourScoreValue++;
+        setMessage("You Win!");
       } else {
+        setMessage("It's a Draw!");
       }
       break;
+
+    default:
+      setMessage("Invalid Choice!");
   }
 
-  // Checks if the game has ended
+  // Check if the game has ended
   if (yourScoreValue >= 5 || compScoreValue >= 5) {
     endGame();
   }
+
   updateScores();
 }
 
-// Event Listeners
-rockButton.addEventListener("click", function () {
-  mainfunc(1);
-});
+// Highlight the winner
+function highlightWinner(yourChoice, compChoice) {
+  if (yourChoice !== compChoice) {
+    if (
+      (yourChoice === 0 && compChoice === 2) || // Paper beats Scissors
+      (yourChoice === 1 && compChoice === 0) || // Rock beats Paper
+      (yourChoice === 2 && compChoice === 1)    // Scissors beats Rock
+    ) {
+      yourImage.parentElement.classList.add("highlight-winner");
+    } else {
+      compImage.parentElement.classList.add("highlight-winner");
+    }
+  }
+}
 
-paperButton.addEventListener("click", function () {
-  mainfunc(0);
-});
+// Reset highlights
+function resetHighlights() {
+  yourImage.parentElement.classList.remove("highlight-winner");
+  compImage.parentElement.classList.remove("highlight-winner");
+}
 
-scissorsButton.addEventListener("click", function () {
-  mainfunc(2);
-});
+// Set message
+function setMessage(message) {
+  resultMessage.textContent = message;
+}
 
 // Update scores
 function updateScores() {
@@ -85,17 +115,8 @@ function updateScores() {
 // End Game
 function endGame() {
   resultModal.style.display = "block";
-
-  resultMessage.textContent =
-    yourScoreValue > compScoreValue
-      ? "You Won the Game"
-      : "Computer Won the Game";
-
+  resultMessage.textContent = yourScoreValue > compScoreValue ? "You Won the Game!" : "Computer Won the Game!";
   disableGameButtons();
-
-  gameButtons.forEach((button) => {
-    button.style.display = "none";
-  });
 }
 
 // Disable game buttons
@@ -105,17 +126,12 @@ function disableGameButtons() {
   });
 }
 
-// Modal Play Again Button
+// Reset Game
 playButton.addEventListener("click", function () {
-  window.location.href = "./game.html";
+  window.location.reload();
 });
 
-// Reset Game
-function resetGame() {
-  resultModal.style.display = "none";
-
-  // Reset scores and enable game buttons
-  yourScoreValue = 0;
-  compScoreValue = 0;
-  updateScores();
-}
+// Event Listeners
+rockButton.addEventListener("click", () => mainfunc(1));
+paperButton.addEventListener("click", () => mainfunc(0));
+scissorsButton.addEventListener("click", () => mainfunc(2));
